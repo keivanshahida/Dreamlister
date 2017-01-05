@@ -27,15 +27,12 @@ class MainVC: UIViewController, UITableViewDelegate, UITableViewDataSource, NSFe
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        
         let cell = tableView.dequeueReusableCell(withIdentifier: "ItemCell", for: indexPath) as! ItemCell
         configureCell(cell: cell, indexPath: indexPath as NSIndexPath)
         return cell
     }
     
     func configureCell(cell: ItemCell, indexPath: NSIndexPath) {
-        
         let item = controller.object(at: indexPath as IndexPath)
         cell.configureCell(item: item)
     }
@@ -79,7 +76,24 @@ class MainVC: UIViewController, UITableViewDelegate, UITableViewDataSource, NSFe
     func attemptFetch() {
         let fetchRequest: NSFetchRequest<Item> = Item.fetchRequest()
         let dateSort = NSSortDescriptor(key: "created", ascending: false)
-        fetchRequest.sortDescriptors = [dateSort]
+        let priceSort = NSSortDescriptor(key: "price", ascending: true)
+        let titleSort = NSSortDescriptor(key: "title", ascending: true)
+        
+        
+        switch(segment.selectedSegmentIndex){
+        case 0:
+            fetchRequest.sortDescriptors = [dateSort]
+            break
+        case 1:
+            fetchRequest.sortDescriptors = [priceSort]
+            break
+        case 2:
+            fetchRequest.sortDescriptors = [titleSort]
+            break
+        default:
+            fetchRequest.sortDescriptors = [dateSort]
+            break
+        }
         
         let controller = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
         
@@ -93,6 +107,11 @@ class MainVC: UIViewController, UITableViewDelegate, UITableViewDataSource, NSFe
             let error = error as NSError
             print("\(error)")
         }
+    }
+    
+    @IBAction func segmentChange(_ sender: UISegmentedControl) {
+        attemptFetch()
+        tableView.reloadData()
     }
     
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
@@ -136,7 +155,6 @@ class MainVC: UIViewController, UITableViewDelegate, UITableViewDataSource, NSFe
     }
     
     func generateTestData(){
-        
         let item = Item(context: context)
         item.title = "MacBook Pro"
         item.price = 1800
@@ -154,13 +172,4 @@ class MainVC: UIViewController, UITableViewDelegate, UITableViewDataSource, NSFe
         
         ad.saveContext()
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
 }
